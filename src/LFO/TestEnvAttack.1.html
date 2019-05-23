@@ -1,0 +1,88 @@
+<html>
+  <head>
+      <title>Testing Envelope - Attack</title>
+  </head>
+  <body>
+    <h1>Attack Rate slider position => Attack speed</h1>
+    <table border="1">
+        <thead>
+        <th>Attack factor</th>
+        <th>Duration</th>
+        <th>Level</th>
+      </thead>
+      <tbody id="results">
+      </tbody>
+    </table>
+    <script type="module">
+      import { Envelope } from './Processors/Envelope.js';
+
+      let results=document.getElementById('results');
+      //appendResult(0.0000080025, results); //slider = 10 => 3.25s
+      //appendResult(0.026, results); //slider = 0 => 0.001s
+
+      appendResult(0.0001167, results); //slider = 5 => 0.24s
+      //appendResult(0.021, results);
+
+      /*
+      appendResult(0.0000080, results);
+      appendResult(0.0000085, results);
+      appendResult(0.0000090, results);
+      */
+
+      function appendResult(attackFactor, results){
+        let result = calcForSliderPosition(attackFactor);
+        for (let level in result){
+          if (level.indexOf('.') >= 0){
+            let duration=result[level];
+            let row=document.createElement('tr');
+            row.innerHTML=`<td>${attackFactor}</td><td>${duration.toFixed(4)} seconds</td><td>${level}</td>`;
+            results.append(row);
+          }
+        }
+      }
+
+      function calcForSliderPosition(attackFactor){
+        const sampleRate=44100;
+
+        var result = { attackFactor };
+
+        let env=new Envelope(sampleRate);
+        env.attackFactor=attackFactor;
+        env.phase=1;
+        let quantumCount=0;
+        while (env.process() > 0 && env.phase === 1){
+          quantumCount++;
+          let t=quantumCount/sampleRate;
+          
+          if (env.value<=0.224){
+            result["0.224"]=t;
+          }
+          
+          if (env.value<=0.410){
+            result["0.410"]=t;
+          }
+          
+          if (env.value<=0.580){
+            result["0.580"]=t;
+          }
+          
+          if (env.value<=0.716){
+            result["0.716"]=t;
+          }
+          
+          if (env.value<=0.847){
+            result["0.847"]=t;
+          }
+          
+          if (env.value<=0.956){
+            result["0.956"]=t;
+          }
+
+          result["1.00"]=t;
+        }
+
+        return result;
+      }
+    </script>
+  </body>
+</html>

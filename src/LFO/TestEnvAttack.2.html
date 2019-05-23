@@ -1,0 +1,51 @@
+<html>
+  <head>
+      <title>Testing Envelope - Attack</title>
+  </head>
+  <body>
+    <h1>Attack Rate slider position => Attack speed</h1>
+    <table border="1">
+        <thead>
+        <th>Slider</th>
+        <th>Time to 0.5</th>
+        <th>Time to 1</th>
+      </thead>
+      <tbody id="results">
+      </tbody>
+    </table>
+    <script type="module">
+      import { Envelope } from './Processors/Envelope.js';
+
+      let results=document.getElementById('results');
+      appendResult(0.027076, results);
+      appendResult(0.000930, results);
+      appendResult(0.0001165, results);
+      appendResult(0.000043089, results);
+      appendResult(0.000008618, results);
+
+      function appendResult(sliderPos, results){
+        let result = calcForSliderPosition(sliderPos);
+        let row=document.createElement('tr');
+        row.innerHTML=`<td>${sliderPos}</td><td>${result.timeToHalf.toFixed(6)} seconds</td><td>${result.timeToFull.toFixed(6)} seconds</td>`;
+        results.append(row);
+      }
+
+      function calcForSliderPosition(sliderPos){
+        const sampleRate=44100;
+
+        let env=new Envelope(sampleRate);
+        env.attackFactor=sliderPos;
+        env.phase=1;
+        let quantumCountA=0, quantumCountB=0;
+        while (env.process() > 0 && env.phase === 1){
+          quantumCountB++;
+          if (env.value<0.5){
+            quantumCountA++;
+          }
+        }
+
+        return { timeToHalf: quantumCountA/sampleRate, timeToFull: quantumCountB/sampleRate };
+      }
+    </script>
+  </body>
+</html>

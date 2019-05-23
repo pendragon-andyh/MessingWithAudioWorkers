@@ -1,0 +1,98 @@
+<html>
+  <head>
+    <title>Testing Envelope - Decay</title>
+  </head>
+  <body>
+    <h1>Decay Rate slider position => Decay speed</h1>
+
+<script type="module">
+      import { Envelope } from './Processors/Envelope.js';
+      import { applyApproximation } from './Approximation.js';
+
+      alert("starting");
+
+      let targetBelowZero=-0.0428308;
+      let decayFactorFor0=0.047903904;
+      let decayFactorFor5=0.0001006735;
+      let decayFactorFor10=0.000050077;
+
+      for (let i=0; i<5;i++){
+        decayFactorFor0 = applyApproximation(decayFactorFor0, 0.01, 0.002, 32, function(input){
+          return calc(input, targetBelowZero, 0);
+        });
+
+        decayFactorFor5 = applyApproximation(decayFactorFor5, 0.00001, 0.984, 32, function(input){
+          return calc(input, targetBelowZero, 0);
+        });
+
+        decayFactorFor10 = applyApproximation(decayFactorFor10, 0.000001, 19.783, 32, function(input){
+          return calc(input, targetBelowZero, 0);
+        });
+
+        targetBelowZero = applyApproximation(targetBelowZero, 0.001, 10, 32, function(input){
+          return calc(decayFactorFor10, input, 0.148);
+        });
+      }
+
+      alert("finished hunting for rates");
+
+      let x=1.774328;
+      let y=0.5627;
+      let z=1;
+      for (let i=0; i<5;i++){
+        z = applyApproximation(z, 0.01, decayFactorFor5, 32, function(input){
+          return calcRateFromParam(decayFactorFor0, x, y, input, 5);
+        });
+        x = applyApproximation(x, 0.01, decayFactorFor10, 32, function(input){
+          return calcRateFromParam(decayFactorFor0, input, y, z, 10);
+        });
+        y = applyApproximation(y, 0.00001, decayFactorFor5, 32, function(input){
+          return calcRateFromParam(decayFactorFor0, x, input, z, 5);
+        });
+        x = applyApproximation(x, 0.01, decayFactorFor5, 32, function(input){
+          return calcRateFromParam(decayFactorFor0, input, y, z, 5);
+        });
+        z = applyApproximation(z, 0.01, decayFactorFor10, 32, function(input){
+          return calcRateFromParam(decayFactorFor0, x, y, input, 10);
+        });
+        y = applyApproximation(y, 0.00001, decayFactorFor10, 32, function(input){
+          return calcRateFromParam(decayFactorFor0, x, input, z, 10);
+        });
+      }
+
+      let n1 = applyApproximation(3, 0.00001, 10, 32, function(input){
+        return input * input;
+      });
+      let n2 = applyApproximation(10, 0.00001, 16, 32, function(input){
+        return input * input;
+      });
+
+      alert("finished hunting for param->rate conversion");
+
+      function calcRateFromParam(decayFactorFor0, x, y, z, sliderPos){
+        return decayFactorFor0 + z * Math.pow(y, x * sliderPos);
+      }
+
+      function calc(decayFactor, targetBelowZero, targetLevel){
+        const sampleRate=44100;
+
+        if (decayFactor <= 0){
+          return null;
+        }
+
+        let env=new Envelope(sampleRate);
+        env.decayFactor=decayFactor;
+        env.phase=2;
+        env.value=1;
+        env.targetBelowZero=targetBelowZero;
+        let quantumCount=0;
+        let maxIterations = sampleRate * 50;
+        while (env.process() > 0 && env.phase === 2 && env.value>targetLevel && quantumCount < maxIterations){
+          quantumCount++;
+        }
+
+        return quantumCount/sampleRate;
+      }
+    </script>
+  </body>
+</html>

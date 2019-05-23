@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <title>Testing LFO - Rate</title>
+  </head>
+  <body>
+    <h1>LFO Rate slider position => LFO frequency</h1>
+    <table border="1">
+        <thead>
+        <th>Slider</th>
+        <th>Frequency</th>
+      </thead>
+      <tbody id="results">
+      </tbody>
+    </table>
+    <script type="module">
+      import { Lfo } from './Processors/Lfo.js';
+
+      let results=document.getElementById('results');
+      appendResult(0, results);
+      appendResult(1, results);
+      appendResult(2, results);
+      appendResult(2.5, results);
+      appendResult(3, results);
+      appendResult(4, results);
+      appendResult(5, results);
+      appendResult(6, results);
+      appendResult(7, results);
+      appendResult(7.5, results);
+      appendResult(8, results);
+      appendResult(9, results);
+      appendResult(10, results);
+
+      function appendResult(sliderPos, results){
+        let result = calcForSliderPosition(sliderPos);
+        let row=document.createElement('tr');
+        row.innerHTML=`<td>${sliderPos}</td><td>${result.toFixed(2)} Hz</td>`;
+        results.append(row);
+      }
+
+      function calcForSliderPosition(sliderPos){
+        const sampleRate=44100;
+
+        let lfo=new Lfo(sampleRate);
+        lfo.setRate(sliderPos);
+        let quantumCount=0;
+        while (lfo.process() > 0){
+          quantumCount++;
+        }
+
+        return sampleRate*0.5/quantumCount;
+      }
+    </script>
+  </body>
+</html>

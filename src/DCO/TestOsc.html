@@ -1,0 +1,42 @@
+<html>
+  <head>
+      <title>Testing Oscillator Aliasing</title>
+  </head>
+  <body>
+    <h1>Attack Rate slider position => Attack speed</h1>
+    <ul>
+      <li><a href="javascript:">Trivial example</a></li>
+      <li><a href="javascript:testNewDco()">Alias-suppressed example</a></li>
+      <li><a href="javascript:testWebAudioApi();">Band-limited Web Audio API example</a></li>
+    </ul>
+
+    <script>
+      function testNewDco(){
+        let ac = new AudioContext();
+        ac.audioWorklet.addModule("TestProcessor.js").then(() => {
+          let node = new AudioWorkletNode(ac, "TestProcessor");
+          node.connect(ac.destination);
+        });
+      }
+      
+      function testWebAudioApi(){
+        let ac = new AudioContext();
+        let node = new OscillatorNode(ac, { frequency: 50, type: "sawtooth" });
+        node.connect(ac.destination);
+        node.start();
+        node.detune.linearRampToValueAtTime(6*12*100, 10);
+        node.stop(ac.currentTime+10);
+      }
+    </script>
+
+    <script type="module">
+      import { DcoJuno60 } from "./dcoJuno60.js";
+      let osc=new DcoJuno60(69, 48000);
+      let buffer=new Float32Array(1000);
+      for (let i=0; i<buffer.length; i++){
+        buffer[i]=osc.process(0, 0, 0);
+      }
+      alert("hello");
+    </script>
+  </body>
+</html>
