@@ -1,0 +1,30 @@
+<html>
+  <head>
+      <title>Testing Noise</title>
+  </head>
+  <body>
+    <ul>
+      <li><a href="javascript:testNewNoise()">Noise example</a></li>
+    </ul>
+
+    <script>
+      function testNewNoise(){
+        let ac = new AudioContext();
+        ac.audioWorklet.addModule("TestNoiseProcessor.js").then(() => {
+          let node = new AudioWorkletNode(ac, "TestNoiseProcessor");
+          node.connect(ac.destination);
+        });
+      }
+    </script>
+
+    <script type="module">
+      import { Noise } from "./noise.js";
+      let osc=new Noise(48000);
+      let buffer=new Float32Array(1000);
+      for (let i=0; i<buffer.length; i++){
+        buffer[i]=osc.process(0, 0, 0);
+      }
+      alert("hello");
+    </script>
+  </body>
+</html>

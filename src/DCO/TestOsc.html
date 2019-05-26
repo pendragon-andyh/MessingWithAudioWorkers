@@ -3,7 +3,6 @@
       <title>Testing Oscillator Aliasing</title>
   </head>
   <body>
-    <h1>Attack Rate slider position => Attack speed</h1>
     <ul>
       <li><a href="javascript:">Trivial example</a></li>
       <li><a href="javascript:testNewDco()">Alias-suppressed example</a></li>
@@ -13,15 +12,15 @@
     <script>
       function testNewDco(){
         let ac = new AudioContext();
-        ac.audioWorklet.addModule("TestProcessor.js").then(() => {
-          let node = new AudioWorkletNode(ac, "TestProcessor");
+        ac.audioWorklet.addModule("TestDcoProcessor.js").then(() => {
+          let node = new AudioWorkletNode(ac, "TestDcoProcessor");
           node.connect(ac.destination);
         });
       }
       
       function testWebAudioApi(){
         let ac = new AudioContext();
-        let node = new OscillatorNode(ac, { frequency: 50, type: "sawtooth" });
+        let node = new OscillatorNode(ac, { frequency: 50, type: "square" });
         node.connect(ac.destination);
         node.start();
         node.detune.linearRampToValueAtTime(6*12*100, 10);

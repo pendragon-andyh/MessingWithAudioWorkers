@@ -1,6 +1,6 @@
 import { DcoJuno60 } from './dcoJuno60.js';
 
-class TestProcessor extends AudioWorkletProcessor {
+class TestDcoProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     this.dco=new DcoJuno60(31, sampleRate);
@@ -23,4 +23,4 @@ class TestProcessor extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor('TestProcessor', TestProcessor);
+registerProcessor('TestDcoProcessor', TestDcoProcessor);
