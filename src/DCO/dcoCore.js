@@ -27,16 +27,16 @@ export class DcoCore {
   }
   
 	calcPolyBLEP2(phase, inc, height) {
-		let result=0.0;
-		if(phase+inc>1.0) {
-			// Left side of transition.
-			const t=(phase-1.0)/inc;
-			result=height*((t*t)+(t+t)+1.0);
-		}
-		else if(phase<inc) {
+    let result=0.0;
+    if(phase<inc) {
 			// Right side of transition.
 			const t=phase/inc;
 			result=height*((t+t)-(t*t)-1.0);
+		}
+		else if(phase+inc>1.0) {
+			// Left side of transition.
+			const t=(phase-1.0)/inc;
+			result=height*((t*t)+(t+t)+1.0);
 		}
 
 		return result;
