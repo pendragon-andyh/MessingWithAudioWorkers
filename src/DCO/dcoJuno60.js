@@ -28,8 +28,9 @@ export class DcoJuno60 extends DcoCore {
 		this.currentPhase+=phaseIncrement;
 		if(this.currentPhase>1.0) {
 			this.currentPhase-=1.0;
-			this.subOutput=newSubOutput=-Math.sign(newSubOutput);
 			this.pwmComparisonLevel=this.calcPwmComparisonLevel(lfoValue, envValue);
+			newSubOutput=(newSubOutput>0.0? -1.0:+1.0);
+			this.subOutput=newSubOutput;
 		}
 
 		// Phat sawtooth (mimics charging capacitor).
