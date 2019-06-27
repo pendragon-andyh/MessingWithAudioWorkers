@@ -4,24 +4,32 @@
  */
 class BaseInstrumentNode extends AudioWorkletNode{
   /**
+   * Initialize the ancestor class.
    * @protected
-   * @param {AudioContext} ac 
-   * @param {string} processorName 
-   * @param {Object} patch 
+   * @param {BaseAudioContext} ac - The audio-context that the new node will operate within.
+   * @param {string} processorName - Name of the back-end processor.
+   * @param {Object=} patch - Initial patch.
    */
   constructor(ac, processorName, patch) {
     super(ac, processorName, patch)
-    this.onprocessorerror=(event) => { console.log("Exception from processor: " + event)}
+
+    this.onprocessorerror=(ev) => {
+      console.log("Exception from audio processor:")
+      console.log(ev)
+    }
+
+    /** @protected */
+    this._patch=patch
   }
 
   /**
    * This is used to buffer "noteOff" events if the sustain pedal is on.
+   * @protected
    */
   _sustainedNotes=null
 
   /**
    * Default treatment of MIDI messages (maps MIDI message-type numbers to implementations).
-   * @property
    * @protected
    */
   midiMessageTypeMap={
@@ -33,7 +41,6 @@ class BaseInstrumentNode extends AudioWorkletNode{
 
   /**
    * Default treatment of MIDI "controlChange" events (maps MIDI control-type numbers to implementations).
-   * @property
    * @protected
    */
   controlChangeMap={
@@ -50,13 +57,37 @@ class BaseInstrumentNode extends AudioWorkletNode{
   }
 
   /**
-   * Send message to the instrument processor.
-   * @protected
-   * @param {string} messageType - Name of the message-type.
-   * @param {Object} data - Payload data for the message (depends on the message-type).
+   * Update a parameter value for the instrument's current patch.
+   * @param {string} parameterPath 
+   * @param {number|string|boolean} value 
    */
-  postMessage(messageType, data) {
-    this.port.postMessage({ messageType, data })
+  updateParameterValue(parameterPath, value) {
+    const pathSegments=parameterPath.split(".")
+
+    let target=this._patch
+    for(let i=0; i<pathSegments.length-1; i++){
+      const segmentName=pathSegments[i]
+      const newTarget=target[segmentName]
+      if(newTarget===undefined) {
+        newTarget=target[segmentName]={}
+      }
+      target=newTarget
+    }
+
+    target[pathSegments[pathSegments.length-1]]=value
+
+    this.postMessage("updatePatch", this._patch)
+  }
+
+  /**
+   * Change the current instrument patch.
+   * @param {Object} newPatch
+   */
+  setPatch(newPatch) {
+    // Create a deep clone of the patch so that we can safely make changes.
+    this._patch=JSON.parse(JSON.stringify(newPatch))
+
+    this.postMessage("updatePatch", this._patch)
   }
 
   /**
@@ -90,6 +121,14 @@ class BaseInstrumentNode extends AudioWorkletNode{
       // Sustain pedal is "on" - so store "noteOff" until pedal is "off".
       this._sustainedNotes[noteNumber]=1
     }
+  }
+
+  /**
+   * Shutdown all active notes.
+   */
+  shutdownAll() {
+    this.postMessage("shutdownAll")
+    this._sustainedNotes=null
   }
 
   /**
@@ -127,6 +166,11 @@ class BaseInstrumentNode extends AudioWorkletNode{
     }
   }
 
+  /**
+   * Change the value of a performance-control
+   * @param {number} controlNumber - Index of the control (normally 0-127 to match MIDI symantics).
+   * @param {number} value - New value of the control (normally 0-127 to match MIDI symantics).
+   */
   controlChange(controlNumber, value) {
     const controlHandler=this.controlChangeMap[controlNumber]
     if(controlHandler) {
@@ -134,23 +178,6 @@ class BaseInstrumentNode extends AudioWorkletNode{
     } else {
       this.postMessage("controlChange", { controlNumber, value })
     }
-  }
-
-  /**
-   * Shutdown all active notes.
-   */
-  shutdownAll() {
-    this.postMessage("shutdownAll")
-    this._sustainedNotes=null
-  }
-
-  changePatch(patchData) {
-    this.shutdownAll()
-    this.postMessage("changePatch", { patchData })
-  }
-
-  updateParameter(parameterIndex, value) {
-    this.postMessage("updateParameter", { parameterIndex, value })
   }
 
   /**
@@ -168,5 +195,15 @@ class BaseInstrumentNode extends AudioWorkletNode{
       // We don't know how to process this type of message - so pass it along.
       this.postMessage("midiMessage", { data })
     }
+  }
+  
+  /**
+   * Send message to the back-end processor.
+   * @protected
+   * @param {string} messageType - Name of the message-type.
+   * @param {Object} data - Payload data for the message (depends on the message-type).
+   */
+  postMessage(messageType, data) {
+    this.port.postMessage({ messageType, data })
   }
 }

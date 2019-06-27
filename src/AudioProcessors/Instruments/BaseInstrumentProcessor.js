@@ -6,7 +6,7 @@ export class BaseInstrumentProcessor extends AudioWorkletProcessor{
   }
 
   process(inputs, outputs, parameters) {
-    return this.implementation.process(inputs, outputs, parameters, this.messageQueue)
+    return this.implementation.process(inputs, outputs, parameters, this.messageQueue, currentTime)
   }
 
   postMessage(messageType, data) {

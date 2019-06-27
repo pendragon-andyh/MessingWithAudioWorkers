@@ -19,9 +19,10 @@ export class Juno60SynthImplementation extends BaseInstrumentImplementation{
    * @param {Float32Array[][]} outputs - List of outputs.
    * @param {Float32Array[]} parameters - List of audio parameter values.
    * @param {object[]} messageQueue - Queue of messages posted from the front-end node.
+   * @param {number} currentTime - Current time of the audio-context.
    */
-  process(inputs, outputs, parameters, messageQueue) {
-    this.processMessages(messageQueue)
+  process(inputs, outputs, parameters, messageQueue, currentTime) {
+    this.processMessages(messageQueue, this.allocateVoices, currentTime)
 
     const output=outputs[0]
     const left=output[0], right=output[1]
@@ -37,7 +38,7 @@ export class Juno60SynthImplementation extends BaseInstrumentImplementation{
 
         if(this.waitingNotes.length&&voice.isActive()) {
           const waitingNote=this.waitingNotes.shift()
-          voice.noteOn(waitingNote.noteNumber, waitingNote.velocity)
+          voice.noteOn(waitingNote.noteNumber, waitingNote.velocity, currentTime)
           monoOut+=voice.process(lfoValue, bendValue)
         }
       }
@@ -54,11 +55,13 @@ export class Juno60SynthImplementation extends BaseInstrumentImplementation{
     }
   }
 
-  allocateVoices(waitingNotes, voices) {
+  allocateVoices(waitingNotes, voices, currentTime) {
     // TODO
   }
 
-  updatePatch(patch) {
-    
+  update(patch) {
+    super.update(patch)
+
+    // TODO
   }
 }

@@ -1,3 +1,5 @@
+import { BaseEnvelope } from "../Components/BaseEnvelope.js"
+
 /**
  * Base implementation of an instrument voice.
  * @abstract
@@ -7,10 +9,12 @@ export class BaseVoiceImplementation {
    * @protected
    * @param {number} sampleRate - Samples-per-second for the current audio context.
    * @param {Object} patch - Object containing the instrument's initial patch.
-   * @param {Object[]} envelopes - List of envelope-like objects (that can be triggered and released). First is the primary VCA envelope.
+   * @param {BaseEnvelope[]} envelopes - List of envelope-like objects (that can be triggered and released). First is the primary VCA envelope.
    */
   constructor(sampleRate, patch, envelopes) {
     this._sampleRate=sampleRate
+
+    /** @protected */
     this._envelopes=envelopes
 
     this.update(patch)
@@ -18,27 +22,35 @@ export class BaseVoiceImplementation {
 
   /**
    * Current note number (set from the noteOn method).
-   * @property
    */
   noteNumber=-1
 
   /**
    * Trigger velocity of the note (set from the noteOn method).
    * Velocity-sensitive instruments may use this in their "update(patch)" method.
-   * @property
    */
-  attackVelocity=64
+  triggerVelocity=64
+
+  /**
+   * Timestamp for the latest note-trigger event.
+   * May be used for prioritising voice allocation.
+   * */
+  triggerTimestamp=-1.0
 
   /**
    * Release velocity of the note (set from the noteOff method).
    * Velocity-sensitive instruments may use this in their "update(patch)" method.
-   * @property
    */
   releaseVelocity=64
 
   /**
+   * Timestamp for the latest note-release event.
+   * May be used for prioritising voice allocation.
+   */
+  releaseTimestamp=-1.0
+  
+  /**
    * Current patch values.
-   * @property
    * @protected
    */
   _currentPatch=null
@@ -71,17 +83,20 @@ export class BaseVoiceImplementation {
    * Start (or retrigger) the specified note.
    * @param {number} noteNumber - Current note number.
    * @param {number} velocity - Attack velocity.
+   * @param {number} currentTime - Current time of the audio-context.
    */
-  noteOn(noteNumber, velocity) {
+  noteOn(noteNumber, velocity, currentTime) {
     this.noteNumber=noteNumber
     this.attackVelocity=velocity
     this.releaseVelocity=64
+    this.triggerTimestamp=currentTime
+    this.releaseTimestamp=-1.0
 
     // Update the voice configuration to reflect the potentially-changed state of the voice.
     this.update(_currentPatch)
 
     // Trigger all of the envelopes.
-    for(let env in this._envelopes) {
+    for(let env of this._envelopes) {
       env.trigger()
     }
   }
@@ -89,9 +104,11 @@ export class BaseVoiceImplementation {
   /**
    * Release the current note.
    * @param {number} velocity - The release Velocity of the note.
+   * @param {number} currentTime - Current time of the audio-context.
    */
-  noteOff(velocity) {
+  noteOff(velocity, currentTime) {
     this.releaseVelocity=velocity
+    this.releaseTimestamp=currentTime
 
     // Update the voice configuration to reflect the potentially-changed state of the voice.
     this.update(_currentPatch)
