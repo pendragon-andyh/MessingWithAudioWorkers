@@ -6,8 +6,9 @@
     <h1>Attack Rate slider position => Attack speed</h1>
     <table border="1">
         <thead>
-        <th>Attack factor</th>
-        <th>Duration</th>
+          <th>Attack factor</th>
+          <th>Attack offset</th>
+          <th>Duration</th>
         <th>Level</th>
       </thead>
       <tbody id="results">
@@ -20,7 +21,9 @@
       //appendResult(0.0000080025, results); //slider = 10 => 3.25s
       //appendResult(0.026, results); //slider = 0 => 0.001s
 
-      appendResult(0.0001167, results); //slider = 5 => 0.24s
+      //appendResult(0.978694601, 0.0347704104, results); //slider = 0 => 0.001s
+      //appendResult(0.999910452, 0.0001461429, results); //slider = 5 => 0.24s
+      appendResult(0.999993381, 0.0000108022, results); //slider = 10 => 3.25s
       //appendResult(0.021, results);
 
       /*
@@ -29,52 +32,52 @@
       appendResult(0.0000090, results);
       */
 
-      function appendResult(attackFactor, results){
-        let result = calcForSliderPosition(attackFactor);
+      function appendResult(attackFactor, attackOffset, results){
+        let result = calcForSliderPosition(attackFactor, attackOffset);
         for (let level in result){
           if (level.indexOf('.') >= 0){
             let duration=result[level];
             let row=document.createElement('tr');
-            row.innerHTML=`<td>${attackFactor}</td><td>${duration.toFixed(4)} seconds</td><td>${level}</td>`;
+            row.innerHTML=`<td>${attackFactor}</td><td>${attackOffset}</td><td>${duration.toFixed(4)} seconds</td><td>${level}</td>`;
             results.append(row);
           }
         }
       }
 
-      function calcForSliderPosition(attackFactor){
+      function calcForSliderPosition(attackFactor, attackOffset){
         const sampleRate=44100;
 
-        var result = { attackFactor };
+        var result = { attackFactor, attackOffset };
 
-        let env=new Envelope(sampleRate);
-        env.attackFactor=attackFactor;
-        env.phase=1;
+        let envOutput=0.0;
         let quantumCount=0;
-        while (env.process() > 0 && env.phase === 1){
+        while (envOutput< 1.0){
+          envOutput = attackOffset+(envOutput*attackFactor);
+
           quantumCount++;
           let t=quantumCount/sampleRate;
           
-          if (env.value<=0.224){
+          if (envOutput<=0.224){
             result["0.224"]=t;
           }
           
-          if (env.value<=0.410){
+          if (envOutput<=0.410){
             result["0.410"]=t;
           }
           
-          if (env.value<=0.580){
+          if (envOutput<=0.580){
             result["0.580"]=t;
           }
           
-          if (env.value<=0.716){
+          if (envOutput<=0.716){
             result["0.716"]=t;
           }
           
-          if (env.value<=0.847){
+          if (envOutput<=0.847){
             result["0.847"]=t;
           }
           
-          if (env.value<=0.956){
+          if (envOutput<=0.956){
             result["0.956"]=t;
           }
 
