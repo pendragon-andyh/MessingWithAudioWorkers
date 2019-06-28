@@ -1,6 +1,6 @@
 import './BaseInstrumentNode.js'
 
-export class Juno60SynthNode extends BaseInstrumentNode {
+export class SynthNode extends BaseInstrumentNode {
   /**
    * Create a new instance of a Juno60-like synthesisor.
    * @param {BaseAudioContext} ac - The audio-context that the new node will operate within.
@@ -10,6 +10,34 @@ export class Juno60SynthNode extends BaseInstrumentNode {
     super(ac, "Juno60SynthProcessor", patch|defaultPatch)
   }
 }
+
+/**
+ * Available names for the Juno's parameters.
+ */
+export const Param={
+  /** Name of the patch. */
+  name: "name",
+  /** VCA level (number - 0.0 to 1.0). */
+  vca: "vca",
+  /** VCA envelope type (string - "gate" or "env"). */
+  vcaType: "vcaType",
+  /** True if the LFO is triggerd automatically by the first note (boolean). */
+  lfoAutoTrigger: "lfo.autoTrigger",
+  /** Rate of the LFO (number - 0.0 to 1.0). */
+  lfoFrequency: "lfo.frequency",
+
+  etc: "etc"
+}
+
+/**
+ * Available modes for modulating the VCA.
+ */
+export const VcaType={
+  gate: "gate",
+  env: "env"
+}
+
+export 
 
 const defaultPatch={
   name: 'Brass',
