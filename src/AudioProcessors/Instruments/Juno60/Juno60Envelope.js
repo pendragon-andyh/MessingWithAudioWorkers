@@ -43,8 +43,8 @@ export class Juno60Envelope extends BaseEnvelope {
    */
   setValuesFromSliders(attackSlider, decaySlider, sustainSlider, releaseSlider) {
     const attackDuration=0.001+(Math.exp(attackSlider*5.0)-1)/(Math.exp(5.0)-1)*3.25
-    const decayDuration=0.002+(Math.exp(decaySlider*4.0)-1)/(Math.exp(4.0)-1)*decaySlider*17.46
-    const releaseDuration=0.002+(Math.exp(releaseSlider*4.0)-1)/(Math.exp(4.0)-1)*releaseSlider*17.46
+    const decayDuration=0.002+(Math.exp(decaySlider*4.0)-1)/(Math.exp(4.0)-1)*decaySlider*19.78
+    const releaseDuration=0.002+(Math.exp(releaseSlider*4.0)-1)/(Math.exp(4.0)-1)*releaseSlider*19.78
     this.setValues(attackDuration, decayDuration, sustainSlider, releaseDuration)
   }
 }

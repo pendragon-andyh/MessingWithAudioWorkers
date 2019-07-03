@@ -93,11 +93,11 @@ export class Juno60VoiceImplementation extends BaseVoiceImplementation {
 
     const patchEnv=patch.env
     let attackDuration=0.001+(Math.exp(patchEnv.attack*5.0)-1)/(Math.exp(5.0)-1)*3.25
-    let decayDuration=0.002+(Math.exp(patchEnv.decay*4.0)-1)/(Math.exp(4.0)-1)*patchEnv.decay*17.46
+    let decayDuration=0.002+(Math.exp(patchEnv.decay*4.0)-1)/(Math.exp(4.0)-1)*patchEnv.decay*19.78
     let sustainLevel=patchEnv.sustain
-    let releaseDuration=0.002+(Math.exp(patchEnv.release*4.0)-1)/(Math.exp(4.0)-1)*patchEnv.release*17.46
+    let releaseDuration=0.002+(Math.exp(patchEnv.release*4.0)-1)/(Math.exp(4.0)-1)*patchEnv.release*19.78
     if(patch.vcaType==="gate") {
-      this._vcaEnvelope.setValues(0.003, 10.0, 1.0, 0.006)
+      this._vcaEnvelope.setValues(0.003, 1.0, 1.0, 0.006)
       if(this._vcaEnvelope.isActive()&&!this._vcaEnvelope.isReleased()) {
         this._vcaEnvelope.doTrigger()
       }
