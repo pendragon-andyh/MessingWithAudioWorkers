@@ -10,21 +10,20 @@ export class ShutdownSegment {
   constructor(sampleRate, seconds) {
     this._shutdownRate=seconds/sampleRate;
   }
+  
   /**
    * Calculate the next value of this segment of the envelope.
    * @param {number} previousValue - Previous value of the envelope.
    * @returns {number} - Next value of the envelope
    */
   process(previousValue) {
-    let result=previousValue-this._shutdownRate;
-    if(this.value<this.target) {
-      result=this.target;
-    }
-    return result;
+    const result=previousValue-this._shutdownRate;
+    return (this.value<0.0)?0.0:result;
   }
+
   /**
    * @param {number} value - Value to test.
    * @returns {bool} - True if the value if the segment is now complete.
    */
-  isComplete=(value) => value<=this.target;
+  isComplete=(value) => value<=0.0;
 }

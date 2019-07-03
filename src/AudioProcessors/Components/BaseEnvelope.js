@@ -42,7 +42,7 @@ export class BaseEnvelope {
   /**
    * Trigger (or retrigger) the envelope.
    */
-  trigger() {
+  doTrigger() {
     this._currentPhase=0;
   }
 
@@ -50,7 +50,7 @@ export class BaseEnvelope {
    * Release the current note.
    * @virtual
    */
-  release() {
+  doRelease() {
     if(this._currentPhase!==-1) {
       this._currentPhase=this._segments.length-2;
     }

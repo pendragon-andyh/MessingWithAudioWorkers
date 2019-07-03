@@ -27,6 +27,7 @@ export class AttackSegment {
   process(previousValue) {
     return (previousValue*this._attackCoeff)+this._attackOffset;
   }
+  
   /**
    * @param {number} value - Value to test.
    * @returns {bool} - True if the value if the segment is now complete.

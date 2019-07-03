@@ -97,7 +97,7 @@ export class BaseVoiceImplementation {
 
     // Trigger all of the envelopes.
     for(let env of this._envelopes) {
-      env.trigger()
+      env.doTrigger()
     }
   }
 
@@ -115,7 +115,7 @@ export class BaseVoiceImplementation {
     
     // Release all of the envelopes.
     for(let env in this._envelopes) {
-      env.release()
+      env.doRelease()
     }
   }
 

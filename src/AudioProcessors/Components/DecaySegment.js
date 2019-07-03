@@ -30,15 +30,13 @@ export class DecaySegment {
    * @returns {number} - Next value of the envelope
    */
   process(previousValue) {
-    let result=(previousValue*this._decayCoeff)+this._decayOffset;
-    if(this.value<this.target&&this._isSustainAtEnd) {
-      result=this.target;
-    }
-    return result;
+    const result=(previousValue*this._decayCoeff)+this._decayOffset;
+    return (this.value<this.target&&this._isSustainAtEnd)?this.target:result
   }
+
   /**
    * @param {number} value - Value to test.
    * @returns {bool} - True if the value if the segment is now complete.
    */
-  isComplete=(value) => value<this.target;
+  isComplete=(value) => value<=this.target&&(!this._isSustainAtEnd||value<0.02);
 }

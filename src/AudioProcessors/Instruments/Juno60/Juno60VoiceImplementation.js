@@ -99,7 +99,7 @@ export class Juno60VoiceImplementation extends BaseVoiceImplementation {
     if(patch.vcaType==="gate") {
       this._vcaEnvelope.setValues(0.003, 10.0, 1.0, 0.006)
       if(this._vcaEnvelope.isActive()&&!this._vcaEnvelope.isReleased()) {
-        this._vcaEnvelope.trigger()
+        this._vcaEnvelope.doTrigger()
       }
     } else {
       this._vcaEnvelope.setValues(attackDuration, decayDuration, sustainLevel, releaseDuration)
