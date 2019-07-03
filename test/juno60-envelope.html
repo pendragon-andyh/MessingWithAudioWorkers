@@ -8,9 +8,9 @@
 </head>
 <body>
   <h1>Emulating the envelope for the Juno60</h1>
-  <div id="graph" style="height: 370px; max-width: 100%; border: 1px blue solid; margin-bottom: 10px;"></div>
+
   <fieldset>
-    <caption>Parameters</caption>
+    <legend>Parameters</legend>
     <div>
       <label style="width:150px; display:inline-block;">Attack:</label>
       <input id="attackInput" type="range" min="0" max="100" value="50" style="width:400px;"/>
@@ -35,6 +35,10 @@
       <span id="releaseValue"></span>
      </div>
   </fieldset>
+
+  <div id="graph" style="height: 370px; max-width: 100%; border: 1px blue solid; margin-top: 10px;"></div>
+
+  <p>See <a href="https://github.com/pendragon-andyh/Juno60/blob/master/Envelope/README.md">analysis</a>.</p>
 
   <script type="module">
     import { Juno60Envelope } from "../src/AudioProcessors/Instruments/Juno60/Juno60Envelope.js"
