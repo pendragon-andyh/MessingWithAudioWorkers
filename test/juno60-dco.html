@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>DCO | Juno60</title>
+  <meta charset="UTF-8">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.slim.min.js" integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" crossorigin="anonymous"></script>
+</head>
+<body>
+  <h1>Emulating the DCO for the Juno60</h1>
+
+  <fieldset>
+    <legend>Parameters</legend>
+    <div>
+      <label style="width:150px; display:inline-block;">Depth:</label>
+      <input id="pwmWidth" type="range" min="0" max="100" value="0" style="width:400px;"/>
+    </div>
+    
+    <div>
+      <label style="width:150px; display:inline-block;">Sawtooth:</label>
+      <input id="sawLevel" type="range" min="0" max="100" value="100" style="width:400px;"/>
+    </div>
+    <div>
+      <label style="width:150px; display:inline-block;">Pulse:</label>
+      <input id="pulseLevel" type="range" min="0" max="100" value="0" style="width:400px;"/>
+    </div>
+    <div>
+      <label style="width:150px; display:inline-block;">Sub:</label>
+      <input id="subLevel" type="range" min="0" max="100" value="0" style="width:400px;"/>
+    </div>
+    <div>
+      <label style="width:150px; display:inline-block;">Noise:</label>
+      <input id="noiseLevel" type="range" min="0" max="100" value="0" style="width:400px;"/>
+    </div>
+  </fieldset>
+
+  <div id="graph" style="height: 370px; max-width: 100%; border: 1px blue solid; margin-top: 10px;"></div>
+
+  <p>See <a href="https://github.com/pendragon-andyh/Juno60/blob/master/DCO/README.md">analysis</a>.</p>
+
+  <script type="module">
+    import { Juno60Dco } from "../src/AudioProcessors/Instruments/Juno60/Juno60Dco.js"
+    import { Noise } from "../src/AudioProcessors/Sources/noise.js"
+
+    $(function(){
+      onSliderChange()
+      $("#pwmWidth, #sawLevel, #pulseLevel, #subLevel, #noiseLevel").on("input", onSliderChange)
+    })
+
+    let drawHandle=null
+    function onSliderChange(){
+      const pwmWidth=($("#pwmWidth").val()|0)/100
+      const sawLevel=($("#sawLevel").val()|0)/100
+      const pulseLevel=($("#pulseLevel").val()|0)/100
+      const subLevel=($("#subLevel").val()|0)/100
+      const noiseLevel=($("#noiseLevel").val()|0)/100
+
+      // Plotting graph is slow - so debounce rapid requests.
+      clearTimeout(drawHandle)
+      drawHandle=setTimeout(function(){ drawOutput(pwmWidth*0.46, sawLevel*0.25, pulseLevel*0.25, subLevel*0.25, noiseLevel*0.25) }, 0)
+    }
+
+    function drawOutput(pwmWidth, sawLevel, pulseLevel, subLevel, noiseLevel){
+      const dataOutput = { x: [], y: [], fill: 'tonexty', type: 'scatter', name: "Output" }
+
+      const dco = new Juno60Dco(69, 48000)
+      dco.pwmSource="m"
+      dco.pwmWidth=pwmWidth
+      dco.sawLevel.setValue(sawLevel)
+      dco.pulseLevel.setValue(pulseLevel)
+      dco.subLevel.setValue(subLevel)
+
+      const noise=new Noise(48000)
+      noise.level.setValue(noiseLevel)
+
+      for (let i=0; i<1000; i++){
+        const dcoValue=dco.process(0, 0, 0)
+        const noiseValue=noise.process()
+
+        dataOutput.x.push(i)
+        dataOutput.y.push(dcoValue + noiseValue)
+      }
+
+      const layout = {
+        xaxis: { range: [0, 1000], title: "Time (samples)" },
+        yaxis: { range: [-1.1, 1.1], title: "Output" }
+      }
+
+      Plotly.purge(document.getElementById('graph'))
+      Plotly.plot(document.getElementById('graph'), [dataOutput], layout, { responsive: true });
+    }
+  </script>
+</body>
+</html>
+  

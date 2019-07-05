@@ -81,9 +81,8 @@ export class Juno60VoiceImplementation extends BaseVoiceImplementation {
     this.dco.pitchLfoModDepth.linearRampToValueAtTime(dco.lfo, changeDuration)
     this.dco.pitchTranspose.linearRampToValueAtTime(0, changeDuration) // TODO - dco.range
 
-    this.dco.pwmWidth.linearRampToValueAtTime(dco.pwmMod==="m"? dco.pwm*0.49:0.0, changeDuration)
-    this.dco.pwmLfoModDepth.linearRampToValueAtTime(dco.pwmMod==="l"? dco.pwm*0.49:0.0, changeDuration) // TODO - what happens for negative ve?
-    this.dco.pwmEnvModDepth.linearRampToValueAtTime(dco.pwmMod==="e"? dco.pwm*0.49:0.0, changeDuration)
+    this.dco.pwmSource=dco.pwmMod
+    this.dco.pwmWidth=dco.pwm*0.49
 
     this.dco.sawLevel.linearRampToValueAtTime(dco.saw? 0.25:0.0, changeDuration)
     this.dco.pulseLevel.linearRampToValueAtTime(dco.pulse? 0.25:0.0, changeDuration)

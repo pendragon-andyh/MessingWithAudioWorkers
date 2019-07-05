@@ -9,7 +9,7 @@ export class Noise {
     this.level = new SmoothMoves(0.25, sampleRate) // 0.25 = sub-slider at 10.
 
     this._b15 = 32768
-    this._oneOverB15 = 1.0 / this.b15
+    this._oneOverB15 = 1.0 / this._b15
     this._currentBits = 129 | ~~(Math.random() * this._b15)
   }
 

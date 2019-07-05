@@ -1,22 +1,21 @@
-import { interpolatedLookup } from "./interpolatedLookup.js.js";
+import { interpolatedLookup } from "./interpolatedLookup.js";
 
 export const noteTable=new Float64Array(121)
 export const centTable=new Float64Array(101)
-(function(){
-	let noteFactor=Math.power(2, 1/12)
-	let noteValue = 1.0
-	for (let i = 0; i < noteTable.length; i++){
-		noteTable[i]=noteValue
-		noteValue*=noteFactor
-	}
-	
-	let centFactor=Math.power(2, 1/1200)
-	let centValue = 1.0
-	for (let i = 0; i < centTable.length; i++){
-		centTable[i]=centValue
-		centValue*=centFactor
-	}
-})();
+
+let noteFactor=Math.pow(2, 1/12)
+let noteValue = 1.0
+for (let i = 0; i < noteTable.length; i++){
+	noteTable[i]=noteValue
+	noteValue*=noteFactor
+}
+
+let centFactor=Math.pow(2, 1/1200)
+let centValue = 1.0
+for (let i = 0; i < centTable.length; i++){
+	centTable[i]=centValue
+	centValue*=centFactor
+}
 
 /**
  * Convert a MIDI note-number into a frequency.
