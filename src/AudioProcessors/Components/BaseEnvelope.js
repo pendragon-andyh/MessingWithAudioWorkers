@@ -8,42 +8,45 @@ export class BaseEnvelope {
    * @protected
    * @property
    */
-  _segments=[];
+  _segments=[]
 
   /**
    * Index of the current segment of the envelope (-1 = not currently active).
    * @protected
    * @property
    */
-  _currentPhase=-1;
+  _currentPhase=-1
 
   /**
    * Current value of the envelope.
    * @protected
    * @property
    */
-  _currentValue=0.0;
+  _currentValue=0.0
 
   /**
    * Returns true if the envelope is currently active.
    */
-  isActive=() => this._currentPhase!==-1;
+  isActive=() => this._currentPhase!==-1
 
   /**
    * Returns true if the envelope is active, and has been released or shutdown.
    */
-  isReleased=() => this.currentPhase!==0&&this.currentPhase!==1;
+  isReleased=() => this.currentPhase!==0&&this.currentPhase!==1
 
   /**
    * Returns true if the envelope is currently shutting-down.
    */
-  isShuttingDown=() => this.currentPhase===this._segments.length-1;
+  isShuttingDown=() => this.currentPhase===this._segments.length-1
 
   /**
    * Trigger (or retrigger) the envelope.
    */
   doTrigger() {
-    this._currentPhase=0;
+    this._currentPhase=0
+    for(let segment of this._segments) {
+      segment.reset()
+    }
   }
 
   /**
@@ -52,7 +55,7 @@ export class BaseEnvelope {
    */
   doRelease() {
     if(this._currentPhase!==-1) {
-      this._currentPhase=this._segments.length-2;
+      this._currentPhase=this._segments.length-2
     }
   }
 
@@ -61,7 +64,7 @@ export class BaseEnvelope {
    */
   shutdown() {
     if(this._currentPhase!==-1) {
-      this._currentPhase=this._segments.length-1;
+      this._currentPhase=this._segments.length-1
     }
   }
 
@@ -72,25 +75,25 @@ export class BaseEnvelope {
     if(this._currentPhase!==-1) {
       while(this._currentPhase<this._segments.length) {
         // Calculate the next value of the current segment.
-        const segment=this._segments[this._currentPhase];
-        const nextValue=segment.process(this._currentValue);
+        const segment=this._segments[this._currentPhase]
+        const nextValue=segment.process(this._currentValue)
         if(segment.isComplete(nextValue)) {
           // Switch to next phase of the envelope.
-          this._currentPhase++;
+          this._currentPhase++
           if(this._currentPhase>=this._segments.length) {
             // All phases are complete, so update to "not-active".
-            this._currentValue=0.0;
-            this._currentPhase=-1;
-            break;
+            this._currentValue=0.0
+            this._currentPhase=-1
+            break
           }
         }
         else {
           // Otherwise the calculate value was good.
-          this._currentValue=nextValue;
-          break;
+          this._currentValue=nextValue
+          break
         }
       }
     }
-    return this._currentValue;
+    return this._currentValue
   }
 }

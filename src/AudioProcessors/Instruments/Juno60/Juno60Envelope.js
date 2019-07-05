@@ -14,14 +14,15 @@ export class Juno60Envelope extends BaseEnvelope {
   constructor(sampleRate) {
     super()
     this._segments=[
-      this.attack=new AttackSegment(sampleRate, 0.632, 1.0),
+      this.attack=new AttackSegment(sampleRate, 0.632, 1.0, false),
       this.decay=new DecaySegment(sampleRate, 0.025, 0.0, true),
       this.release=new DecaySegment(sampleRate, 0.025, 0.0, false),
       this.shutdown=new ShutdownSegment(sampleRate, 0.001)
     ];
   }
+
   /**
-   * Configure the segements of the envelope from segment durations.
+   * Configure the segments of the envelope from direct values.
    * @param {number} attackDuration - Number of seconds for the duration of the attack phase.
    * @param {number} decayDuration - Number of seconds for the duration of the decay phase.
    * @param {number} sustainLevel - Level of the sustain phase (0.0 to 1.0).
@@ -35,7 +36,7 @@ export class Juno60Envelope extends BaseEnvelope {
   }
 
   /**
-   * Configure the segements of the envelope from slider-positions.
+   * Configure the segments of the envelope from slider-positions.
    * @param {number} attackSlider - Value of the attack slider (0.0 to 1.0).
    * @param {number} decaySlider - Value of the decay slider (0.0 to 1.0).
    * @param {number} sustainSlider - Value of the sustain slider (0.0 to 1.0).

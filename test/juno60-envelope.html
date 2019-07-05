@@ -72,8 +72,9 @@
 
     function drawOutput(attackDuration, decayDuration, sustainValue, releaseDuration){
       const dataOutput = { x: [], y: [], fill: 'tonexty', type: 'scatter', name: "Output" }
+      const dataRelease = { x: [], y: [], fill: 'markers', name: "Release" }
 
-      const env = new Juno60Envelope(4800, 0.632, 1.0)
+      const env = new Juno60Envelope(4800)
       env.setValues(attackDuration, decayDuration, sustainValue, releaseDuration)
       env.doTrigger(0)
 
@@ -90,6 +91,8 @@
           sustainCounter--
           if (sustainCounter<=0){
             env.doRelease(0)
+            dataRelease.x.push(i/4800)
+            dataRelease.y.push(value)
           }
         }
       }
@@ -100,7 +103,7 @@
       }
 
       Plotly.purge(document.getElementById('graph'))
-      Plotly.plot(document.getElementById('graph'), [dataOutput], layout, { responsive: true });
+      Plotly.plot(document.getElementById('graph'), [dataOutput, dataRelease], layout, { responsive: true });
     }
   </script>
 </body>

@@ -10,33 +10,41 @@ export class DecaySegment {
    * @param {bool} isSustainAtEnd - Set to true if the end of the segment is the sustain phase.
    */
   constructor(sampleRate, decayTCO, target, isSustainAtEnd) {
-    this._sampleRate=sampleRate;
-    this._decayTCO=decayTCO;
-    this.target=target;
-    this._isSustainAtEnd=isSustainAtEnd;
+    this._sampleRate=sampleRate
+    this._decayTCO=decayTCO
+    this.target=target
+    this._isSustainAtEnd=isSustainAtEnd
   }
+
   /**
    * Configure the segment so that it would decay from +1 to 0 in the specified number of seconds.
    * @param {number} seconds - Planned duration of the segment (if the segment runs from +1 to 0)
    */
   setDuration(seconds) {
-    const samples=this._sampleRate*seconds;
-    this._decayCoeff=Math.exp(-Math.log((1.0+this._decayTCO)/this._decayTCO)/samples);
-    this._decayOffset=(this.target-this._decayTCO)*(1.0-this._decayCoeff);
+    const samples=this._sampleRate*seconds
+    this._decayCoeff=Math.exp(-Math.log((1.0+this._decayTCO)/this._decayTCO)/samples)
+    this._decayOffset=(this.target-this._decayTCO)*(1.0-this._decayCoeff)
   }
+    
+  /**
+   * Reset the segment.
+   */
+  reset() {  }
+
   /**
    * Calculate the next value of this segment of the envelope.
    * @param {number} previousValue - Previous value of the envelope.
    * @returns {number} - Next value of the envelope
    */
   process(previousValue) {
-    const result=(previousValue*this._decayCoeff)+this._decayOffset;
-    return (this.value<this.target&&this._isSustainAtEnd)?this.target:result
+    const result=(previousValue*this._decayCoeff)+this._decayOffset
+    return (result<this.target&&this._isSustainAtEnd)?this.target:result
   }
 
   /**
+   * Test if the segment is now complete.
    * @param {number} value - Value to test.
    * @returns {bool} - True if the value if the segment is now complete.
    */
-  isComplete=(value) => value<=this.target&&(!this._isSustainAtEnd||value<0.02);
+  isComplete=(value) => (value<=this.target&&!this._isSustainAtEnd)||value<0.02
 }

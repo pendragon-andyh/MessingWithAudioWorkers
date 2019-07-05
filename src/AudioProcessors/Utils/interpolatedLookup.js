@@ -7,5 +7,8 @@ export function interpolatedLookup(value, table) {
   }
   const index=value|0;
   const factor=(value-index);
+  if(factor===0) {
+    return table[index]
+  }
   return (table[index]*(1.0-factor))+(table[index+1]*factor);
 }

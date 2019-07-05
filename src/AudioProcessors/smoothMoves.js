@@ -43,6 +43,7 @@ export class SmoothMoves {
 
   /**
    * Get the next value of parameter.
+   * @returns {number}
    */
   getNextValue() {
     let value=this._currentValue
