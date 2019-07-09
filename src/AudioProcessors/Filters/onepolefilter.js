@@ -1,6 +1,10 @@
 // One Pole Filter based on Will Pirkle's C++ Code.
 
 export default class OnePoleFilter {
+  /**
+   * 
+   * @param {number} piOverSampleRate - The value of `PI / sampleRate`.
+   */
   constructor(piOverSampleRate) {
     this.piOverSampleRate=piOverSampleRate
   }
@@ -35,6 +39,7 @@ export default class OnePoleFilter {
 
   /**
    * Calculate the feedback.
+   * @returns {number}
    */
   feedbackOutput() {
     return this.beta*(this.z1+this.feedback*this.delta)
