@@ -57,21 +57,29 @@
 
       // Plotting graph is slow - so debounce rapid requests.
       clearTimeout(drawHandle)
-      drawHandle=setTimeout(function(){ drawOutput(pwmWidth*0.46, sawLevel*0.25, pulseLevel*0.25, subLevel*0.25, noiseLevel*0.25) }, 0)
+      drawHandle=setTimeout(function(){ drawOutput(pwmWidth*0.46, sawLevel*0.20, pulseLevel*0.20, subLevel*0.195, noiseLevel*0.21) }, 0)
     }
 
     function drawOutput(pwmWidth, sawLevel, pulseLevel, subLevel, noiseLevel){
       const dataOutput = { x: [], y: [], fill: 'tonexty', type: 'scatter', name: "Output" }
 
+      // If multiple sources at same time then volume is reduced (max is 0.5).
+      let mixFactor=sawLevel+pulseLevel+subLevel+noiseLevel
+      if(mixFactor>0.3) {
+        mixFactor=2.0-(mixFactor-0.3)*1.5
+      } else {
+        mixFactor=2.0
+      }
+
       const dco = new Juno60Dco(69, 48000)
       dco.pwmSource="m"
       dco.pwmWidth=pwmWidth
-      dco.sawLevel.setValue(sawLevel)
-      dco.pulseLevel.setValue(pulseLevel)
-      dco.subLevel.setValue(subLevel)
+      dco.sawLevel.setValue(sawLevel * mixFactor)
+      dco.pulseLevel.setValue(pulseLevel * mixFactor)
+      dco.subLevel.setValue(subLevel * mixFactor)
 
       const noise=new Noise(48000)
-      noise.level.setValue(noiseLevel)
+      noise.level.setValue(noiseLevel * mixFactor)
 
       for (let i=0; i<1000; i++){
         const dcoValue=dco.process(0, 0, 0)

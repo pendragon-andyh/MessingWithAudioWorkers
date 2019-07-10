@@ -27,17 +27,13 @@ export class Juno60Dco extends DcoCore {
   pwmComparisonLevel=0.5
 
   process(lfoValue, envValue, bendValue) {
-    let origSubOutput=this.subOutput
-    let newSubOutput=origSubOutput
-
     // Increment phase [0-1]. Wrap-around if the cycle is complete.
     const phaseIncrement=this.calcPhaseIncrement(lfoValue, envValue, bendValue)
+    const origPhase=this.currentPhase
     this.currentPhase+=phaseIncrement
     if(this.currentPhase>1.0) {
       this.currentPhase-=1.0
       this.pwmComparisonLevel=this.calcPwmComparisonLevel(lfoValue, envValue)
-      newSubOutput=newSubOutput>0.0? -1.0:+1.0
-      this.subOutput=newSubOutput
     }
 
     // Phat sawtooth (mimics charging capacitor).
@@ -45,12 +41,22 @@ export class Juno60Dco extends DcoCore {
     newSawOutput-=this.calcPolyBLEP2(this.currentPhase, phaseIncrement, 1.0)
 
     // Pulse uses a comparator against the current phase.
-    // TODO - Implement leakage for this and the sub-osc.
     let newPulseOutput=this.currentPhase>this.pwmComparisonLevel? 1.0:-1.0
     newPulseOutput-=this.calcPolyBLEP2(this.currentPhase, phaseIncrement, 1.0)
     const x=this.currentPhase-this.pwmComparisonLevel
     newPulseOutput+=this.calcPolyBLEP2(x<0.0? x+1.0:x, phaseIncrement, 1.0)
-    newSubOutput-=this.calcPolyBLEP2(this.currentPhase, phaseIncrement, origSubOutput)
+
+    // Sub flip-flops between -1 and +1 when the phase reaches 0.5.
+    let newSubOutput=this.subOutput
+    let y=this.currentPhase-0.5
+    if(y<phaseIncrement&&y>-phaseIncrement) {
+      if(y<0.0) { y+=1.0 }
+      const origSubOutput=newSubOutput
+      if(this.currentPhase>=0.5&&origPhase<0.5) {
+        this.subOutput=newSubOutput=newSubOutput>0.0? -1.0:+1.0
+      }
+      newSubOutput-=this.calcPolyBLEP2(y, phaseIncrement, origSubOutput)
+    }
 
     // Return the mixed-down output.
     return (

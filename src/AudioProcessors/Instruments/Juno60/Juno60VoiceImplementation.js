@@ -84,11 +84,24 @@ export class Juno60VoiceImplementation extends BaseVoiceImplementation {
     this.dco.pwmSource=dco.pwmMod
     this.dco.pwmWidth=dco.pwm*0.49
 
-    this.dco.sawLevel.linearRampToValueAtTime(dco.saw? 0.25:0.0, changeDuration)
-    this.dco.pulseLevel.linearRampToValueAtTime(dco.pulse? 0.25:0.0, changeDuration)
-    this.dco.subLevel.linearRampToValueAtTime(dco.sub? dco.subAmount*0.25:0.0, changeDuration)
+    // Relative volumes of each source.
+    let sawLevel=dco.saw? 0.2:0.0
+    let pulseLevel=dco.pulse? 0.2:0.0
+    let subLevel=dco.sub? dco.subAmount*0.195:0.0
+    let noiseLevel=dco.noise*0.21
 
-    this.noise.level.linearRampToValueAtTime(dco.noise*0.25, changeDuration)
+    // If multiple sources at same time then volume is reduced (max is 0.5).
+    let mixFactor=sawLevel+pulseLevel+subLevel+noiseLevel
+    if(mixFactor>0.3) {
+      mixFactor=2.0-(mixFactor-0.3)*1.5
+    } else {
+      mixFactor=2.0
+    }
+
+    this.dco.sawLevel.linearRampToValueAtTime(sawLevel*mixFactor, changeDuration)
+    this.dco.pulseLevel.linearRampToValueAtTime(pulseLevel*mixFactor, changeDuration)
+    this.dco.subLevel.linearRampToValueAtTime(subLevel*mixFactor, changeDuration)
+    this.noise.level.linearRampToValueAtTime(noiseLevel*mixFactor, changeDuration)
 
     const patchEnv=patch.env
     let attackDuration=0.001+(Math.exp(patchEnv.attack*5.0)-1)/(Math.exp(5.0)-1)*3.25
