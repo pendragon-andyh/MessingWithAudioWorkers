@@ -63,7 +63,7 @@
     function drawOutput(pwmWidth, sawLevel, pulseLevel, subLevel, noiseLevel){
       const dataOutput = { x: [], y: [], fill: 'tonexty', type: 'scatter', name: "Output" }
 
-      // If multiple sources at same time then volume is reduced (max is 0.5).
+      // If multiple sources at same time then volume is reduced (max is 1.0 instead of 1.6).
       let mixFactor=sawLevel+pulseLevel+subLevel+noiseLevel
       if(mixFactor>0.3) {
         mixFactor=2.0-(mixFactor-0.3)*1.5
