@@ -1,16 +1,21 @@
-// One Pole Filter based on Will Pirkle's C++ Code.
-
+/**
+ * One Pole Filter based on Will Pirkle's C++ Code.
+ * @license "You may also use the code from the FX and Synth books without licensing or fees. 
+ * The code is for you to develop your own plugins for your own use or for commercial use."
+ * @see http://www.willpirkle.com/forum/licensing-and-book-code/licensing-and-using-book-code/
+ */
 export default class OnePoleFilter {
   /**
-   * 
+   * Create new instance of a single-pole filter.
    * @param {number} piOverSampleRate - The value of `PI / sampleRate`.
    */
   constructor(piOverSampleRate) {
     this.piOverSampleRate=piOverSampleRate
+    Object.preventExtensions(this)
   }
 
-  /** Feedforward coefficient (based on the cutoff frequency) */
-  alpha=0.0
+  /** Feed-forward coefficient (based on the cutoff frequency) */
+  alpha=1.0
 
   beta=0.0
   z1=0.0
@@ -59,7 +64,7 @@ export default class OnePoleFilter {
    * @returns {number} Output value
    */
   renderLPF(xn) {
-    const xIn=xn*this.gamma+this.feedback+this.epsilon*this.feedbackOutput()
+    xn=xn*this.gamma+this.feedback+this.epsilon*this.feedbackOutput()
     const vn=(this.a0*xIn-this.z1)*this.alpha
     const out=vn+this.z1
     this.z1=vn+out
