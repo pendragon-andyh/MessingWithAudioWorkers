@@ -21,6 +21,7 @@ export class SmoothMoves {
   setValue(value) {
     this._targetValue=value
     this._stepSize=(value-this._currentValue)
+    this._onMoveComplete=null
   }
 
   /**
@@ -30,14 +31,17 @@ export class SmoothMoves {
    * @param {Function} onComplete - Function to execute when the transition has completed.
    */
   linearRampToValueAtTime(value, duration, onComplete) {
+    this.setValue(value)
     if(this._targetValue!==value) {
-      this.setValue(value)
       if(duration&&this._isStarted) {
         this._stepSize/=(duration*this._sampleRate)
-        this._onMoveComplete=onComplete
-      } else {
-        this._currentValue=value
       }
+    }
+    
+    if(onComplete&&this._currentValue===value) {
+      onComplete()
+    } else {
+      this._onMoveComplete=onComplete
     }
   }
 
